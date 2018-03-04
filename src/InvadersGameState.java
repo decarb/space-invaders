@@ -18,21 +18,21 @@ public class InvadersGameState {
 	private final double default_shoot_delay = 0.2; //second
 	private final int default_shoot_count_max = (int) (fps * default_shoot_delay);
 	
-	private final double default_enemy_radius = 7;
-	private final double default_enemy_spawn_height = (default_scale * 1.1) + (2 * default_enemy_radius);
-	private final double default_enemy_delay = 2.5;
-	private final int default_enemy_count_max = (int) (fps * default_enemy_delay);
-	private final double default_enemy_velocity = 30;
+	private final double default_enemy_radius = 6;
+	private final double default_enemy_velocity = 2;
 	private final Polygon default_enemy_model = Polygon.circle(default_enemy_radius, 10);
+	private final int default_enemy_rows = 1; //5
+	private final int default_enemy_coloums = 1; //9
+	private final double default_enemy_gap = 6;
+	private final double default_enemy_start_height = default_scale - 20;
 
 	private Draw canvas;
 	private Player player;
 	private ArrayList<GameObject> projectiles;
 	private ArrayList<GameObject> enemies;
-
-	private int enemyCountMax = default_enemy_count_max;
+	
 	private int shootDelay = 0;
-	private int enemyDelay = 0;
+	private int playerScore = 0;
 
 	private boolean shoot = true;
 	private boolean shotFired = false;
@@ -41,7 +41,8 @@ public class InvadersGameState {
 		this.player = new Player();
 		this.canvas = new Draw();
 		this.projectiles = new ArrayList<GameObject>();
-		this.enemies = new ArrayList<>();
+		this.enemies = new ArrayList<GameObject>();
+		createEnemies();
 		initCanvas();
 	}
 
@@ -79,14 +80,6 @@ public class InvadersGameState {
 		
 		pr = this.projectiles.iterator();
 		while (pr.hasNext()) if (pr.next().getPosition().magnitude() > 150) pr.remove();
-
-		Random r = new Random();
-		if (this.enemyDelay == 0) {
-			double randomValue = -90 + (90 + 90) * r.nextDouble();
-			this.enemies.add(new GameObject(new Vector(randomValue, default_enemy_spawn_height), Vector2D.polar(default_enemy_velocity, 3 * Math.PI / 2), 0, 0, default_enemy_model));
-			this.enemyDelay++;
-		} else if (this.enemyDelay == default_enemy_count_max) this.enemyDelay = 0;
-		else this.enemyDelay++;
 		
 		if (this.player.outside(default_scale)) this.player.bounce(default_player_bounce_coeff);
 		if (this.player.getAngularPosition() < 0) this.player.setAngle(0);
@@ -98,6 +91,8 @@ public class InvadersGameState {
 			this.shotFired = false;
 			this.player.reload();
 		}
+		
+		checkIntersections();
 	}
 
 	public void buffer() {
@@ -110,10 +105,65 @@ public class InvadersGameState {
 		this.player.draw(this.canvas);
 		for (GameObject p : this.projectiles) p.draw(this.canvas);
 		for (GameObject e : this.enemies) e.draw(this.canvas);
+		printScore();
 	}
-
-	public void addProjectile(GameObject projectile) {
-		this.projectiles.add(projectile);
+	
+	private void checkIntersections() {
+		ArrayList<GameObject> removede = new ArrayList<>();
+		ArrayList<GameObject> removedp = new ArrayList<>();
+		
+		for (Iterator<GameObject> enemies = this.enemies.iterator(); enemies.hasNext();) {
+			GameObject enemy = enemies.next();
+			for (Iterator<GameObject> projectiles = this.projectiles.iterator(); projectiles.hasNext();) {
+				GameObject projectile = projectiles.next();
+				
+				if (enemy.getPosition().minus(projectile.getPosition()).magnitude() < 6) {
+					playerScore++;
+					removede.add(enemy);
+					removedp.add(projectile);
+				}
+			}
+		}
+		
+		this.projectiles.removeAll(removedp);
+		this.enemies.removeAll(removede);
+	}
+	
+	private void printScore() {
+		this.canvas.setFont();
+		this.canvas.text(-(default_scale - 15), default_scale - 6, "Score: " + this.playerScore);
+	}
+	
+	public boolean isOver() {
+		if (this.enemies.size() == 0) return true;
+		else return false;
+	}
+	
+	private void createEnemies() {
+		double startingPosition = 0;
+		double diameter = 2 * default_enemy_radius;
+		if (default_enemy_coloums % 2 == 0) startingPosition = -(((default_enemy_coloums / 2) - 0.5) * (default_enemy_gap + diameter));
+		else startingPosition = -(((default_enemy_coloums - 1) / 2) * (default_enemy_gap + diameter));
+		
+		double delta = diameter + default_enemy_gap;
+		
+		for (int i = 0; i < default_enemy_rows; i++) {
+			for (int j = 0; j < default_enemy_coloums; j++) {
+				Vector position = new Vector(startingPosition + (j * delta), default_enemy_start_height - (i * delta));
+				GameObject enemy = new GameObject(position, new Vector(0, -default_enemy_velocity), 0, 0, default_enemy_model);
+				this.enemies.add(enemy);
+			}
+		}
+	}
+	
+	public void blackScreen() {
+		this.canvas.clear();
+		this.buffer();
+	}
+	
+	public boolean quitPressed() {
+		if (this.canvas.isKeyPressed(KeyEvent.VK_Q)) return true;
+		else return false;
 	}
 
 	public static void main(String[] args) {
@@ -121,8 +171,13 @@ public class InvadersGameState {
 
 		while (true) {
 			gs.updateAll();
-			gs.drawAll();
-			gs.buffer();
+			
+			if (!gs.isOver()) {
+				gs.drawAll();
+				gs.buffer();
+			} else break;
 		}
+		
+		while (!gs.quitPressed());
 	}
 }

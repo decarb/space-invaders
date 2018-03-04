@@ -41,6 +41,10 @@ public class GameObject {
 		this.velocity = this.velocity.add(acceleration.times(dt));
 		this.position = this.position.add(this.velocity.times(dt));
 	}
+	
+	public void displace(Vector displacement) {
+		this.position = this.position.add(displacement);
+	}
 
 	public void rotate(double angularAcceleration, double dt ) {
 		this.angularVelocity += angularAcceleration * dt;
