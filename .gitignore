@@ -1,0 +1,15 @@
+*~
+.#*
+.git
+*#
+
+out
+
+# Intellij IDEA files
+*.ipr
+*.iws
+*.iml
+*.idea
+workspace.xml
+atlassian-ide-plugin.xml
+*.sc
