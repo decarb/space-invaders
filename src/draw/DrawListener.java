@@ -1,9 +1,11 @@
+package draw;
+
 /******************************************************************************
- *  Compilation:  javac DrawListener.java
+ *  Compilation:  javac draw.DrawListener.java
  *  Execution:    none
  *  Dependencies: none
  *
- *  Interface that accompanies Draw.java.
+ *  Interface that accompanies draw.Draw.java.
  ******************************************************************************/
 
 public interface DrawListener {
