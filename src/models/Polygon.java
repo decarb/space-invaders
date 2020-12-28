@@ -9,12 +9,6 @@ public class Polygon {
     private final double[] y;
     private final int points;
 
-    public Polygon(double[] x, double[] y) {
-        this.x = x;
-        this.y = y;
-        this.points = x.length;
-    }
-
     public Polygon(Vector... points) {
         this.points = points.length;
         double[] x = new double[points.length];
@@ -48,15 +42,6 @@ public class Polygon {
 
         for (int i = 0; i < this.points; i++)
             pointsNew[i] = centroid.add(Vector2D.rotate(pointsOld[i].minus(centroid), theta));
-        return new Polygon(pointsNew);
-    }
-
-    public Polygon rotate(Vector reference, double theta) {
-        Vector[] pointsOld = this.toVectors();
-        Vector[] pointsNew = new Vector[this.points];
-
-        for (int i = 0; i < this.points; i++)
-            pointsNew[i] = reference.add(Vector2D.rotate(pointsOld[i].minus(reference), theta));
         return new Polygon(pointsNew);
     }
 
@@ -99,10 +84,6 @@ public class Polygon {
         points[3] = new Vector(-(width / 2.0), -(height / 2.0));
 
         return new Polygon(points);
-    }
-
-    public void printPoints() {
-        for (int i = 0; i < this.points; i++) new Vector(x[i], y[i]).print();
     }
 
     public static void main(String[] args) {

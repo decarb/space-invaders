@@ -8,18 +8,12 @@ public class GameObject {
     private Vector position;
     private Vector velocity;
     private double angularPosition;
-    private double angularVelocity;
     private Polygon model;
 
-    public GameObject() {
-
-    }
-
-    public GameObject(Vector position, Vector velocity, double angularPosition, double angularVelocity, Polygon model) {
+    public GameObject(Vector position, Vector velocity, double angularPosition, Polygon model) {
         this.position = position;
         this.velocity = velocity;
         this.angularPosition = angularPosition;
-        this.angularVelocity = angularVelocity;
         this.model = model;
     }
 
@@ -48,15 +42,6 @@ public class GameObject {
         this.position = this.position.add(this.velocity.times(dt));
     }
 
-    public void displace(Vector displacement) {
-        this.position = this.position.add(displacement);
-    }
-
-    public void rotate(double angularAcceleration, double dt) {
-        this.angularVelocity += angularAcceleration * dt;
-        this.angularPosition += this.angularVelocity * dt;
-    }
-
     public void rotate(double theta) {
         this.angularPosition += theta;
     }
@@ -67,12 +52,5 @@ public class GameObject {
 
     public void bounce(double coeff) {
         this.velocity = this.velocity.times(-coeff);
-    }
-
-    public void print() {
-        this.velocity.print();
-        this.position.print();
-        System.out.println(this.angularPosition);
-        System.out.println(this.angularVelocity);
     }
 }

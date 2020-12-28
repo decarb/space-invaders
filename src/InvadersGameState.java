@@ -8,7 +8,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class InvadersGameState {
     private final double fps = 165.0;
@@ -82,15 +81,12 @@ public class InvadersGameState {
             } else this.shoot = true;
         }
 
-        Iterator<GameObject> pr = this.projectiles.iterator();
-
         this.player.move(playerAcc, dt / 1000.0);
         this.player.rotate(playerTurn * dt / 1000.0);
         for (GameObject p : this.projectiles) p.move(new Vector(0, 0), dt / 1000.0);
         for (GameObject e : this.enemies) e.move(new Vector(0, 0), dt / 1000.0);
 
-        pr = this.projectiles.iterator();
-        while (pr.hasNext()) if (pr.next().getPosition().magnitude() > 150) pr.remove();
+        this.projectiles.removeIf(gameObject -> gameObject.getPosition().magnitude() > 150);
 
         if (this.player.outside(default_scale)) this.player.bounce(default_player_bounce_coeff);
         if (this.player.getAngularPosition() < 0) this.player.setAngle(0);
@@ -154,18 +150,18 @@ public class InvadersGameState {
     }
 
     private void createEnemies() {
-        double startingPosition = 0;
+        double startingPosition;
         double diameter = 2 * default_enemy_radius;
         if (default_enemy_coloums % 2 == 0)
-            startingPosition = -(((default_enemy_coloums / 2) - 0.5) * (default_enemy_gap + diameter)); //This is just to find out the starting position to arrange the enemies in a grid
-        else startingPosition = -(((default_enemy_coloums - 1) / 2) * (default_enemy_gap + diameter));
+            startingPosition = -(((default_enemy_coloums / 2.0) - 0.5) * (default_enemy_gap + diameter)); //This is just to find out the starting position to arrange the enemies in a grid
+        else startingPosition = -(((default_enemy_coloums - 1) / 2.0) * (default_enemy_gap + diameter));
 
         double delta = diameter + default_enemy_gap;
 
         for (int i = 0; i < default_enemy_rows; i++) {
             for (int j = 0; j < default_enemy_coloums; j++) {
                 Vector position = new Vector(startingPosition + (j * delta), default_enemy_start_height - (i * delta));
-                GameObject enemy = new GameObject(position, new Vector(0, -default_enemy_velocity), 0, 0, default_enemy_model);
+                GameObject enemy = new GameObject(position, new Vector(0, -default_enemy_velocity), 0, default_enemy_model);
                 this.enemies.add(enemy);
             }
         }
@@ -186,11 +182,6 @@ public class InvadersGameState {
         this.buffer();
     }
 
-    public void blackScreen() {
-        this.canvas.clear();
-        this.buffer();
-    }
-
     public void displayIntro() {
         this.canvas.setPenColor(Color.WHITE);
         this.canvas.filledRectangle(0, 0, default_scale / 2, default_scale / 2);
@@ -208,8 +199,8 @@ public class InvadersGameState {
         return !this.canvas.isKeyPressed(KeyEvent.VK_Q);
     }
 
-    public boolean keyPressed() {
-        return this.canvas.hasNextKeyTyped();
+    public boolean keyNotPressed() {
+        return !this.canvas.hasNextKeyTyped();
     }
 
     public boolean mustRestart() {
@@ -222,8 +213,8 @@ public class InvadersGameState {
 
     public void restart() {
         this.player = new Player();
-        this.projectiles = new ArrayList<GameObject>();
-        this.enemies = new ArrayList<GameObject>();
+        this.projectiles = new ArrayList<>();
+        this.enemies = new ArrayList<>();
         createEnemies();
         initCanvas();
 

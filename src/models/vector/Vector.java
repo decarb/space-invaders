@@ -9,11 +9,6 @@ public class Vector {
         this.dimension = dimension;
     }
 
-	/*public models.vector.Vector(double[] components) {
-		this.components = components;
-		this.dimension = components.length;
-	}*/
-
     public Vector(double... components) {
         this.components = components;
         this.dimension = components.length;

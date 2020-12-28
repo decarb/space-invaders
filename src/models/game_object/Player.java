@@ -11,7 +11,6 @@ public class Player extends GameObject {
     private static final Vector default_starting_position = new Vector(0, -90);
     private static final Vector default_starting_velocity = new Vector(0, 0);
     private static final double default_angular_position = Math.PI / 2;
-    private static final double default_angular_velocity = 0;
     private static final Polygon default_player_model = Polygon.circle(default_radius, 20);
 
     // Turret constants
@@ -29,12 +28,8 @@ public class Player extends GameObject {
     // Class variables
     private boolean cooldown = false;
 
-    public Player(Vector position, Vector velocity, double angularPosition, double angularVelocity) {
-        super(position, velocity, angularPosition, angularVelocity, default_player_model);
-    }
-
     public Player() {
-        super(default_starting_position, default_starting_velocity, default_angular_position, default_angular_velocity, default_player_model);
+        super(default_starting_position, default_starting_velocity, default_angular_position, default_player_model);
     }
 
     public void draw(Draw canvas) {
@@ -54,7 +49,7 @@ public class Player extends GameObject {
     public GameObject shoot() {
         Vector position = this.getPosition().add(Vector2D.polar(default_shoot_radius, this.getAngularPosition()));
         Vector velocity = Vector2D.polar(default_shoot_velocity, this.getAngularPosition());
-        return new GameObject(position, velocity, this.getAngularPosition(), 0, default_projectile_model);
+        return new GameObject(position, velocity, this.getAngularPosition(), default_projectile_model);
     }
 
     public void cooldown() {
